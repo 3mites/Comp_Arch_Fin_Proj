@@ -1,9 +1,9 @@
 .model small
 .stack
 .data
-	text1 db 13,10,"1 - Attack $"
-	text2 db 13,10,"2 - Heal $"
-	text3 db 13,10,"3 - Buff $"
+	text1 db 13,10,"[1] - Attack $"
+	text2 db 13,10,"[2] - Heal $"
+	text3 db 13,10,"[3] - Buff $"
 	buff db 2h
 	Heal db 5h
 	
@@ -20,6 +20,9 @@
 
 	text8 db " Invalid Input$"
     text9 db 13,10,"Do you want to exit [Y/N]? $"
+	
+	Buffed1 db 13,10,"Player 1 Buffed: Attack +2$"
+	Buffed2 db 13,10,"Player 2 Buffed: Attack +2$"
 	
 .code
 main:
@@ -80,8 +83,9 @@ Main_Game_Player1:
 	mov dh,al
 	cmp dh, "1"
 	je Attack_Player_1
+	cmp dh, "3"
+	je jumpBuff_Success_Player1
 	
-
 repeat_prompt:
 	mov ah,9
 	mov dx,offset text9
@@ -90,9 +94,9 @@ repeat_prompt:
 	mov ah,1
 	int 21h
 	cmp al,'Y'
-	je exit
+	je jumpExit1
 	cmp al,'y'
-	je exit
+	je jumpExit1
 	cmp al,'N'
 	je refresh
 	cmp al,'n'
@@ -131,10 +135,16 @@ Main_Game_Player2:
 	mov dh,al
 	cmp dh, "1"
 	je Attack_Player_2
+	cmp dh, "3"
+	je Buff_Success_Player2
+	
 	
 	;input rest of player 2 moves here
+jumpExit1:
+	jmp exit
+jumpBuff_Success_Player1:
+	jmp Buff_Success_Player1
 	
-
 Attack_Player_1:
 	sub bl,ch
 	add bl,48
@@ -161,9 +171,22 @@ Player_2_Win:
     mov dx,offset text7
     int 21h
 	jmp repeat_prompt
+
+Buff_Success_Player1:
+	add ch,02h ;adds 2 Attack
+	mov ah,09
+	mov dx,offset Buffed1
+    int 21h
+	jmp Main_Game_Player2
 	
-
-
+Buff_Success_Player2:
+	add cl,02h ;adds 2 Attack
+	mov ah,09
+	mov dx,offset Buffed2
+    int 21h
+	jmp Main_Game_Player1	
+	
+	
 exit:
 	mov ah,4ch
 	int 21h
