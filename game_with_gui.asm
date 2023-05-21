@@ -285,6 +285,13 @@ repeat_prompt:
 	je refresh
 	cmp al,'n'
 	je refresh
+	jmp invalid_repeat_prompt
+invalid_repeat_prompt:
+	mov ah,9
+	mov dx,offset invalid2
+	int 21h
+	jmp repeat_prompt
+	
 exit:
 	mov ah,4ch
 	int 21h
